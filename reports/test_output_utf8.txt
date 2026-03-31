@@ -1,0 +1,38 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\BIT\AMIE_APO
+plugins: anyio-3.7.1, langsmith-0.7.22, asyncio-1.3.0, cov-7.0.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 3 items
+
+tests\test_regime_detection.py .F.                                       [100%]
+
+================================== FAILURES ===================================
+_________________ TestRegimeDetection.test_msvar_fit_predict __________________
+
+self = <test_regime_detection.TestRegimeDetection testMethod=test_msvar_fit_predict>
+
+    def test_msvar_fit_predict(self):
+        msvar_model = MarketMSVAR(k_regimes=2)
+        msvar_model.fit(pd.Series(self.dummy_returns.flatten()))
+        probas = msvar_model.predict_regimes()
+>       self.assertEqual(len(probas), len(self.dummy_returns))
+E       AssertionError: 299 != 300
+
+tests\test_regime_detection.py:43: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-03-30 06:00:20.654 | INFO     | src.regime_detection.ms_var_model:__init__:16 - MarketMSVAR initialized with 2 regimes and AR(1).
+2026-03-30 06:00:20.655 | INFO     | src.regime_detection.ms_var_model:fit:21 - Fitting MS-AR on 300 samples...
+2026-03-30 06:00:20.974 | INFO     | src.regime_detection.ms_var_model:fit:32 - MS-AR fitting complete.
+2026-03-30 06:00:20.975 | INFO     | src.utils.logger:wrapper:30 - Function fit executed in 320.45 ms
+2026-03-30 06:00:20.975 | INFO     | src.utils.logger:wrapper:30 - Function predict_regimes executed in 0.01 ms
+============================== warnings summary ===============================
+tests/test_regime_detection.py::TestRegimeDetection::test_msvar_fit_predict
+  C:\Users\BIT\AppData\Roaming\Python\Python314\site-packages\statsmodels\base\optimizer.py:21: FutureWarning: Keyword arguments have been passed to the optimizer that have no effect. The list of allowed keyword arguments for method bfgs is: gtol, norm, epsilon. The list of unsupported keyword arguments passed include: iter. After release 0.14, this will raise.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_regime_detection.py::TestRegimeDetection::test_msvar_fit_predict
+=================== 1 failed, 2 passed, 1 warning in 6.63s ====================
+

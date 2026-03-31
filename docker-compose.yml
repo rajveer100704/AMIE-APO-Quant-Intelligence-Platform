@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  amie-api:
+    build: .
+    container_name: amie-apo-api
+    ports:
+      - "8000:8000"
+    environment:
+      - EXECUTION_MODE=DRY
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: amie-apo-state
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+  prometheus:
+    image: prom/prometheus
+    container_name: amie-apo-metrics
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: amie-apo-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    restart: always
+
+networks:
+  default:
+    name: amie-network

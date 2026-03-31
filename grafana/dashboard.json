@@ -1,0 +1,40 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "AMIS Scores",
+      "type": "graph",
+      "targets": [{ "expr": "amis_score" }]
+    },
+    {
+      "title": "Portfolio Drawdown",
+      "type": "gauge",
+      "targets": [{ "expr": "portfolio_drawdown" }]
+    },
+    {
+      "title": "Order Execution Latency",
+      "type": "histogram",
+      "targets": [{ "expr": "execution_latency_seconds_bucket" }]
+    },
+    {
+      "title": "Order Failures",
+      "type": "stat",
+      "targets": [{ "expr": "orders_total{status='FAILED'}" }]
+    }
+  ],
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": ["amie-apo", "quant"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "AMIE-APO Institutional Dashboard",
+  "uid": "amie-apo-production",
+  "version": 1
+}

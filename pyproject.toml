@@ -1,0 +1,35 @@
+[project]
+name = "amie-apo"
+version = "1.0.0"
+description = "Production-grade quant intelligence platform with real-time execution, C++ optimization, and full CI/CD validation."
+authors = [
+    { name = "rajveer100704" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "numpy",
+    "pandas",
+    "scipy",
+    "numba",
+    "pybind11",
+    "alpaca-trade-api",
+    "redis",
+    "structlog",
+    "prometheus-client",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

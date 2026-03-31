@@ -1,0 +1,16 @@
+# AMIE-APO Risk Configuration
+# Production-grade safety limits and kill-switches
+
+risk_limits:
+  max_position_per_asset: 0.02         # 2% max weight per asset (SAFE START)
+  max_portfolio_exposure: 0.2          # 20% max total exposure (SAFE START)
+  max_turnover_daily: 0.1              # 10% max daily portfolio turnover
+  kill_switch_drawdown: 0.03           # 3% max peak-to-trough drawdown (SAFE START)
+  max_orders_per_minute: 5             # Rate limiting for API sanity
+  max_slippage_bps: 20                 # 20 bps max expected slippage
+
+execution_policy:
+  default_mode: "LIVE"                 # "DRY" or "LIVE"
+  retry_attempts: 3
+  order_timeout_seconds: 5
+  reconciliation_heartbeat_s: 300      # 5 minutes

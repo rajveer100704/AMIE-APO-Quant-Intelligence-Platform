@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Env
+.env
+.env.test
+
+# Virtual env
+venv/
+.venv/
+
+# Logs & Reports
+logs/
+reports/*.html
+reports/screenshots/*.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+*.so
+*.dll
+*.exe
+build/
+dist/
+*.egg-info/
+
+# Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data
+data/*.csv
+data/*.json
+!data/.gitkeep

@@ -1,0 +1,43 @@
+# AMIE-APO Model Registry
+# Production-grade model versioning and parameters
+
+models:
+  regime_detection:
+    name: "HMM-Market-Regime"
+    version: "v1.2.0"
+    author: "Antigravity-AI"
+    parameters:
+      n_components: 3
+      covariance_type: "full"
+      n_iter: 100
+      random_state: 42
+    training:
+      window_days: 2520 # 10 years
+      refit_frequency_days: 30
+
+  volatility_stress:
+    name: "GARCH-Volatility-Inference"
+    version: "v1.0.4"
+    author: "Antigravity-AI"
+    parameters:
+      p: 1
+      q: 1
+      dist: "skewt"
+    training:
+      window_days: 504 # 2 years
+      refit_frequency_days: 1
+
+  liquidity_impact:
+    name: "Amihud-Spread-Model"
+    version: "v1.1.0"
+    author: "Antigravity-AI"
+    parameters:
+      smoothing_window: 20
+      impact_coefficient: 0.05
+    training:
+      window_days: 252
+
+config_metadata:
+  last_updated: "2026-03-30T08:52:00Z"
+  deployment_env: "production"
+  latency_budget_strict: true
