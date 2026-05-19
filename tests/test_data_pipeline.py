@@ -10,13 +10,22 @@ from src.data_ingestion.pipeline import DataPipeline
 @pytest.mark.unit
 def test_yfinance_fetch(mock_alpaca):
     """Test YFinance loader fetching data."""
-    loader = YFinanceLoader(["SPY"])
+    loader = YFinanceLoader(["SPY", "VIX"])
+    
+    # Test fetch_batch
     with pytest.MonkeyPatch().context() as m:
-        m.setattr(loader, "fetch_ohlcv", lambda symbol, period="1mo", interval="1m": pd.DataFrame({"Close": [100.0, 101.0], "Open": [99.0, 100.0]}, index=pd.date_range("2024-01-01", periods=2)))
-        df = loader.fetch_ohlcv("SPY", period="1d", interval="1m")
-        assert not df.empty
-        assert "Close" in df.columns
-
+        m.setattr(loader, "fetch_ohlcv", lambda symbol, period="1mo", interval="1m": pd.DataFrame({"Close": [100.0, 101.0]}))
+        data = loader.fetch_batch(period="1d", interval="1m")
+        assert len(data) == 2
+        assert "SPY" in data
+        assert "VIX" in data
+        
+    # Test fetch_ohlcv exception handling
+    from unittest.mock import patch
+    with patch("yfinance.Ticker") as mock_ticker:
+        mock_ticker.side_effect = Exception("Ticker error")
+        df_empty = loader.fetch_ohlcv("SPY")
+        assert df_empty.empty
 
 @pytest.mark.unit
 def test_orderbook_sim():
@@ -29,11 +38,55 @@ def test_orderbook_sim():
 
 @pytest.mark.unit
 def test_cleaner():
-    """Test DataCleaner normalization."""
-    cleaner = DataCleaner()
-    df = pd.DataFrame({"Close": [100.0, 101.0, 100.5]})
-    df = cleaner.normalize(df, ["Close"])
-    assert "Close_norm" in df.columns
+    """Test DataCleaner normalization, cleaning, and outlier detection."""
+    cleaner_z = DataCleaner(normalization="z-score")
+    cleaner_mm = DataCleaner(normalization="min-max")
+    
+    # Test empty DataFrame
+    df_empty = pd.DataFrame()
+    assert cleaner_z.clean(df_empty).empty
+    assert cleaner_z.normalize(df_empty, ["Close"]).empty
+    assert cleaner_z.detect_outliers(df_empty, "Close").empty
+    
+    # Test columns is None or missing
+    df_valid = pd.DataFrame({"Close": [100.0, 101.0, 100.5]})
+    assert cleaner_z.normalize(df_valid, None).equals(df_valid)
+    assert cleaner_z.normalize(df_valid, ["MissingColumn"]).equals(df_valid)
+    assert cleaner_z.detect_outliers(df_valid, "MissingColumn").equals(df_valid)
+    
+    # Test clean handling of Inf and NaN
+    df_dirty = pd.DataFrame({"Close": [100.0, float('inf'), 102.0, float('nan'), 101.0]})
+    df_cleaned = cleaner_z.clean(df_dirty)
+    assert not df_cleaned.isna().any().any()
+    assert not (df_cleaned == float('inf')).any().any()
+    
+    # Test z-score with non-zero std and zero std
+    df_z = pd.DataFrame({"Close": [100.0, 102.0, 101.0]})
+    df_z = cleaner_z.normalize(df_z, ["Close"])
+    assert "Close_norm" in df_z.columns
+    
+    df_zero_std = pd.DataFrame({"Close": [100.0, 100.0, 100.0]})
+    df_zero_std = cleaner_z.normalize(df_zero_std, ["Close"])
+    assert "Close_norm" in df_zero_std.columns
+    assert (df_zero_std["Close_norm"] == 0).all()
+    
+    # Test min-max normalization
+    df_mm = pd.DataFrame({"Close": [10.0, 20.0, 15.0]})
+    df_mm = cleaner_mm.normalize(df_mm, ["Close"])
+    assert "Close_norm" in df_mm.columns
+    assert df_mm["Close_norm"].iloc[0] == 0.0
+    assert df_mm["Close_norm"].iloc[1] == 1.0
+    
+    df_mm_zero = pd.DataFrame({"Close": [10.0, 10.0]})
+    df_mm_zero = cleaner_mm.normalize(df_mm_zero, ["Close"])
+    assert (df_mm_zero["Close_norm"] == 0).all()
+    
+    # Test outlier detection
+    df_outliers = pd.DataFrame({"Close": [10.0, 11.0, 10.5, 10.2, 50.0]}) # 50.0 is an outlier
+    df_outliers = cleaner_z.detect_outliers(df_outliers, "Close", threshold=1.5)
+    assert "Close_is_outlier" in df_outliers.columns
+    assert df_outliers["Close_is_outlier"].iloc[4] == True
+
 
 @pytest.mark.integration
 def test_pipeline_execution(tmp_path):

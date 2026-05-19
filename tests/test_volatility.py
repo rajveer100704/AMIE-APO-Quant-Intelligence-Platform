@@ -40,6 +40,24 @@ def test_hawkes_jumps():
     jumps = hawkes.generate_jumps(100)
     assert len(jumps) == 100
 
+    # Test simulate_intensity
+    events = np.array([0.1, 0.2])
+    times = np.array([1, 5])
+    intensity = hawkes.simulate_intensity(events, times)
+    assert len(intensity) == 2
+    assert intensity[0] == 0.01 # baseline mu
+
+    # Test simulate_intensity fallback path (e.g. passing None)
+    intensity_fallback = hawkes.simulate_intensity(None, times)
+    assert len(intensity_fallback) == len(times)
+    assert np.all(intensity_fallback == 0.01)
+
+    # Test generate_jumps fallback path (e.g. invalid n_steps causing TypeError/ValueError)
+    jumps_fallback = hawkes.generate_jumps(None)
+    assert isinstance(jumps_fallback, float)
+
+
+
 @pytest.mark.unit
 def test_monte_carlo_parallel():
     sim = MonteCarloSimulator(n_paths=1000, n_steps=10)

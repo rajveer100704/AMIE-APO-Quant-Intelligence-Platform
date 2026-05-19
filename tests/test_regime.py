@@ -44,10 +44,22 @@ def test_hmm_fit_predict(dummy_regime_data):
 def test_msvar_fit_predict(dummy_regime_data):
     returns, df, data_dir = dummy_regime_data
     msvar_model = MarketMSVAR(k_regimes=2)
+    
+    # 1. Un-fitted state testing
+    with pytest.raises(ValueError):
+        msvar_model.predict_regimes()
+    assert msvar_model.get_transition_matrix() is None
+    
+    # 2. Fit and predict
     msvar_model.fit(pd.Series(returns.flatten()))
     probas = msvar_model.predict_regimes()
     # MS-AR(1) loses the first observation due to lag
     assert len(probas) == len(returns) - 1
+    
+    # 3. Transition matrix
+    trans_mat = msvar_model.get_transition_matrix()
+    assert trans_mat is not None
+
 
 @pytest.mark.integration
 def test_processor_end_to_end(dummy_regime_data, tmp_path):

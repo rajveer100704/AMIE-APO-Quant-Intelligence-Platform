@@ -20,26 +20,28 @@ class HighFrequencyBacktester:
         dates = ohlcv_dfs[first_symbol].index
         
         capital = self.capital
-        # weights_series is expected to be a DataFrame (Date x Symbol)
         
+        # Pre-calculate returns for each symbol
+        returns_dfs = {}
+        for s in symbols:
+            returns_dfs[s] = ohlcv_dfs[s]["Close"].pct_change().fillna(0.0)
+            
         for date in dates:
             # Rebalance
             target_weights = weights_series.loc[date]
             current_prices = {s: ohlcv_dfs[s].loc[date, "Close"] for s in symbols}
             
-            # Simple assumption: Daily rebalancing or per-bar rebalancing
-            # Calculate PnL (Change in capital from asset returns)
-            # In a real backtester, this is done based on shares held.
-            # Here we simplify with continuous rebalancing.
             port_return = 0
             for s in symbols:
-                asset_ret = ohlcv_dfs[s].loc[date, "Close"].pct_change() # We'd need actual return
+                asset_ret = returns_dfs[s].loc[date]
                 # Since we are iterating bar by bar, let's use actual bar-return
                 # (For simplicity we assume daily rebalance for demo)
-                pass
+                port_return += target_weights[s] * asset_ret
             
-            # Let's use a more robust logic for the "Engine" to call rebalance periodicially
-            pass
+            # Update capital based on portfolio return
+            capital *= (1.0 + port_return)
+            self.history.append({"date": date, "capital": capital})
+
 
     def calculate_performance(self, equity_curve):
         """Computes performance metrics (Sharpe, MaxDD)."""

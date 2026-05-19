@@ -47,8 +47,9 @@ class MarketMSVAR:
         """Returns the transition matrix."""
         if self.results is None:
             return None
-        # statsmodels stores transition params in reg_traffic
-        return self.results.regime_transition_matrix
+        # statsmodels stores transition params in regime_transition
+        return self.results.regime_transition
+
 
 if __name__ == "__main__":
     # Test with random walk + regime shifts

@@ -52,6 +52,23 @@ def test_impact_slippage():
     assert bps > 0
     assert impact > 0
 
+    # Test fit_kyle_lambda with valid dataframe
+    df = pd.DataFrame({
+        "Close": [100.0, 101.0, 102.0, 101.5],
+        "Volume": [1000.0, 1200.0, 1100.0, 950.0]
+    })
+    lambd = model.fit_kyle_lambda(df)
+    assert lambd != 1.0e-6 # should be updated from default
+
+    # Test fit_kyle_lambda with insufficient data
+    df_short = pd.DataFrame({
+        "Close": [100.0],
+        "Volume": [1000.0]
+    })
+    lambd_short = model.fit_kyle_lambda(df_short)
+    assert lambd_short == lambd # should fall back to previous fitted value
+
+
 @pytest.mark.integration
 def test_liquidity_engine_end_to_end(dummy_liq_data, tmp_path):
     ohlcv, l2, data_dir = dummy_liq_data
