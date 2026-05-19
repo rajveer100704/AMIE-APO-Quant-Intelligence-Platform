@@ -6,7 +6,7 @@ authors = [
     { name = "rajveer100704" }
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
@@ -26,9 +26,6 @@ dependencies = [
     "prometheus-client",
 ]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
 
 [build-system]
 requires = ["setuptools>=61.0"]

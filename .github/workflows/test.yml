@@ -48,12 +48,14 @@ jobs:
         EXECUTION_MODE: DRY
         ALPACA_API_KEY: dummy
         ALPACA_SECRET_KEY: dummy
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         pytest -m "not performance and not slow" --maxfail=1 --disable-warnings --cov=src --cov-fail-under=80
 
     - name: Run Integration Tests
       env:
         EXECUTION_MODE: DRY
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         pytest -m "integration"
 
