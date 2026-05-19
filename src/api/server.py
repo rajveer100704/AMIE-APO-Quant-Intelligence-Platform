@@ -363,21 +363,24 @@ def optimize(symbols: str = "SPY,VIX"):
         "timestamp": time.time(),
         "amis_score": 65.4, # Mocked for demo
         "regime": "Neutral",
-        
+
+        # Top-level weights for easy API consumer access
+        "weights": {s: float(w) for s, w in zip(returns_data.keys(), weights)},
+
         "portfolio": {
             "weights": {s: float(w) for s, w in zip(returns_data.keys(), weights)},
             "exposure": float(np.sum(np.abs(weights))),
             "drawdown": current_drawdown,
             "pnl": 0.012 # Initial seed PnL
         },
-        
+
         "execution": {
             "orders": execution_results,
             "success_rate": len([r for r in execution_results if r.get("status") in ["EXECUTED", "DRY_RUN"]]) / len(execution_results),
             "avg_latency_ms": (time.perf_counter() - start) * 1000,
             "slippage": 0.001
         },
-        
+
         "validation": validation_status
     }
     
