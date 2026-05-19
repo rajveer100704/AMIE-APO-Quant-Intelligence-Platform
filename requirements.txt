@@ -1,18 +1,50 @@
+# Core API & Web
 fastapi
-uvicorn
+uvicorn[standard]
+
+# Data & Numerics
 numpy
 pandas
 scipy
+pyarrow
+
+# ML / Regime Detection
+hmmlearn
+statsmodels
+arch
+
+# High-Performance Compute
 numba
-pybind11
+joblib
+dask[distributed]
+
+# Execution & Broker
 alpaca-trade-api
+
+# Persistence & Caching
 redis
+
+# Logging & Observability
 structlog
 prometheus-client
+
+# Data Ingestion
 yfinance
+
+# Visualization
 matplotlib
 seaborn
+
+# Config & Utilities
+python-dotenv
+pyyaml
+psutil
+
+# Build
+pybind11
+
+# Testing
 pytest
 pytest-asyncio
+pytest-cov
 httpx
-python-dotenv
