@@ -56,9 +56,11 @@ def test_optimize_endpoint(client, tmp_path):
         response = client.get("/optimize?symbols=SPY,VIX")
         assert response.status_code == 200
         data = response.json()
-        assert "weights" in data
-        assert data["weights"]["SPY"] == 0.6
-        assert len(data["execution_summary"]) == 2
+        assert "portfolio" in data
+        assert "weights" in data["portfolio"]
+        assert data["portfolio"]["weights"]["SPY"] == 0.6
+        assert "execution" in data
+        assert len(data["execution"]["orders"]) == 2
 
 @pytest.mark.performance
 def test_api_latency(client):
