@@ -31,9 +31,10 @@ class StateManager:
             self.redis_client.ping()
             self.mode = "redis"
             logger.info("StateManager initialized with Redis backend")
-        except (redis.ConnectionError, redis.TimeoutError):
+        except Exception as e:
             self.mode = "memory"
-            logger.warning("Redis unavailable. Falling back to In-Memory state store")
+            logger.warning("Redis unavailable. Falling back to In-Memory state store", error=str(e))
+
 
     def set(self, key: str, value: Any, ttl: Optional[int] = None):
         """Sets a value in the state store."""

@@ -2,10 +2,12 @@ import pytest
 import numpy as np
 import pandas as pd
 import os
+from unittest.mock import patch
 from src.data_ingestion.pipeline import DataPipeline
 from src.optimizer.engine import APOEngine
 from src.execution.risk_guard import RiskGuard
 from src.execution.order_manager import OrderManager
+
 
 @pytest.mark.integration
 def test_full_pipeline_ingestion_to_order(tmp_path, mock_alpaca):
@@ -23,7 +25,7 @@ def test_full_pipeline_ingestion_to_order(tmp_path, mock_alpaca):
     symbols = ["SPY", "VIX"]
     pipeline = DataPipeline(symbols, processed_dir)
     # Patch yfinance fetching
-    with patch("yfinance.download") as mock_yf:
+    with patch("src.data_ingestion.loaders.yfinance_loader.YFinanceLoader.fetch_ohlcv") as mock_fetch:
         df = pd.DataFrame({
             "Open": [100.0, 101.0, 102.0],
             "High": [101.0, 102.0, 103.0],
@@ -31,8 +33,9 @@ def test_full_pipeline_ingestion_to_order(tmp_path, mock_alpaca):
             "Close": [100.0, 101.0, 102.0],
             "Volume": [1000, 1100, 1200]
         }, index=pd.date_range("2024-01-01", periods=3))
-        mock_yf.return_value = df
+        mock_fetch.return_value = df
         pipeline.run_ingestion(period="1d", interval="1h")
+
         
     # 2. Simulation of Intermediate Steps (Regime, Vol, Liq files)
     # For a true full integration, we would run those processors, but we'll mock the files they output for speed
@@ -64,9 +67,11 @@ def test_full_pipeline_ingestion_to_order(tmp_path, mock_alpaca):
     
     # 4. Risk Guard & Order Manager
     guard = RiskGuard()
+    guard.config["max_position_per_asset"] = 0.6
     manager = OrderManager()
     
     orders = []
+
     for s in symbols:
         weight = alloc[s]
         risk_res = guard.validate_order(s, weight, 0.01, 10)

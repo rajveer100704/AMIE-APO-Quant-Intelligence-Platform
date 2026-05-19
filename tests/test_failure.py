@@ -35,11 +35,9 @@ def test_amis_api_fallback_on_failure(client):
         mock_fusion.side_effect = Exception("System Crash")
         response = client.get("/amis/AAPL")
         
-        # In a real hardened API, this might return a 500 but still have a fallback logic
-        # For now, let's just assert that it handles the exception (e.g. returns a 500 or a safe default)
-        # Assuming the API has error handling that doesn't just crash out.
-        # But let's look at the implementation of AMISFusion's compute_amis, it should have its own safety.
-        pass
+        assert response.status_code == 500
+        assert "AMIS computation failed" in response.json()["detail"]
+
 
 @pytest.mark.unit
 def test_risk_guard_missing_config_safety():

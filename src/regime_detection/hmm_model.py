@@ -20,9 +20,19 @@ class MarketHMM:
     @log_execution_time
     def fit(self, features):
         """Fits the HMM on the provided features (2D array-like)."""
-        logger.info(f"Fitting HMM on {len(features)} samples...")
+        features_arr = np.asarray(features)
+        logger.info(f"Fitting HMM on {len(features_arr)} samples...")
+        
+        # Calculate mean and standard deviation for robust internal scaling
+        self.mean_ = np.mean(features_arr, axis=0)
+        self.std_ = np.std(features_arr, axis=0)
+        # Prevent division by zero for constant features
+        self.std_ = np.where(self.std_ == 0.0, 1.0, self.std_)
+        
+        scaled_features = (features_arr - self.mean_) / self.std_
+        
         try:
-            self.model.fit(features)
+            self.model.fit(scaled_features)
             self.is_fitted = True
             logger.info("HMM fitting complete.")
             
@@ -35,13 +45,16 @@ class MarketHMM:
             logger.error(f"Error fitting HMM: {e}")
             raise
 
+
     @log_execution_time
     def predict(self, features):
         """Predicts the hidden states for the given features."""
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction.")
         
-        states = self.model.predict(features)
+        features_arr = np.asarray(features)
+        scaled_features = (features_arr - self.mean_) / self.std_
+        states = self.model.predict(scaled_features)
         return states
 
     @log_execution_time
@@ -50,8 +63,11 @@ class MarketHMM:
         if not self.is_fitted:
             raise ValueError("Model must be fitted before prediction.")
         
-        probas = self.model.predict_proba(features)
+        features_arr = np.asarray(features)
+        scaled_features = (features_arr - self.mean_) / self.std_
+        probas = self.model.predict_proba(scaled_features)
         return probas
+
 
     def get_transition_matrix(self):
         """Returns the state transition matrix."""

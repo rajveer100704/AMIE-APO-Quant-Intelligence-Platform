@@ -11,12 +11,12 @@ from src.data_ingestion.pipeline import DataPipeline
 def test_yfinance_fetch(mock_alpaca):
     """Test YFinance loader fetching data."""
     loader = YFinanceLoader(["SPY"])
-    # Mocking fetching since we don't want real network calls in CI
     with pytest.MonkeyPatch().context() as m:
-        m.setattr(loader, "fetch_ohlcv", lambda s, p, i: pd.DataFrame({"Close": [100.0, 101.0], "Open": [99.0, 100.0]}, index=pd.date_range("2024-01-01", periods=2)))
+        m.setattr(loader, "fetch_ohlcv", lambda symbol, period="1mo", interval="1m": pd.DataFrame({"Close": [100.0, 101.0], "Open": [99.0, 100.0]}, index=pd.date_range("2024-01-01", periods=2)))
         df = loader.fetch_ohlcv("SPY", period="1d", interval="1m")
         assert not df.empty
         assert "Close" in df.columns
+
 
 @pytest.mark.unit
 def test_orderbook_sim():

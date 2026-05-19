@@ -68,14 +68,16 @@ class OrderManager:
                     from_status=old_status, 
                     to_status=status)
 
-    def reconcile_positions(self):
+    def reconcile_positions(self, broker_positions: Optional[Dict[str, float]] = None):
         """
         Syncs Internal state vs. Broker state.
         Detects 'ghost positions' or missing fills.
         """
-        # Fetch positions from Alpaca (Real broker)
-        broker_positions_raw = alpaca_client.get_positions()
-        broker_positions = {p["symbol"]: float(p["qty"]) for p in broker_positions_raw}
+        if broker_positions is None:
+            # Fetch positions from Alpaca (Real broker)
+            broker_positions_raw = alpaca_client.get_positions()
+            broker_positions = {p["symbol"]: float(p["qty"]) for p in broker_positions_raw}
+
 
         internal_positions = state_manager.get("portfolio:current_positions") or {}
         

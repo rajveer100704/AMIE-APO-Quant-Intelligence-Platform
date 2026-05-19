@@ -269,11 +269,17 @@ def get_amis(symbol: str):
         cached["latency_ms"] = (time.perf_counter() - start) * 1000
         return cached
 
-    score = fusion.compute_amis(symbol)
+    try:
+        score = fusion.compute_amis(symbol)
+    except Exception as e:
+        logger.error("Failed to compute AMIS score", symbol=symbol, error=str(e))
+        raise HTTPException(status_code=500, detail=f"AMIS computation failed: {str(e)}")
+
     result = {"symbol": symbol, "amis": float(score)}
     cache.set(f"amis:{symbol}", result, ttl=30)
     result["latency_ms"] = (time.perf_counter() - start) * 1000
     return result
+
 
 
 @app.get("/optimize")

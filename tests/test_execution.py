@@ -14,9 +14,10 @@ def test_dry_run_execution_flow(execution_context):
     """Test that a valid order follows the correct status path in DRY mode."""
     manager, guard = execution_context
     symbol = "AAPL"
-    weight = 0.05
+    weight = 0.01
     drawdown = 0.01
     slippage = 10
+
     
     # 1. Risk Check
     risk_result = guard.validate_order(symbol, weight, drawdown, slippage)
