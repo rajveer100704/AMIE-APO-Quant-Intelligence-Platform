@@ -57,8 +57,8 @@ def test_optimize_endpoint(client, tmp_path):
         assert response.status_code == 200
         data = response.json()
         assert "portfolio" in data
-        assert "weights" in data
-        assert data["weights"]["SPY"] == 0.6
+        assert "weights" in data["portfolio"]
+        assert data["portfolio"]["weights"] == {"SPY": 0.6, "VIX": 0.4}
         assert len(data["execution"]["orders"]) == 2
 
 @pytest.mark.performance
