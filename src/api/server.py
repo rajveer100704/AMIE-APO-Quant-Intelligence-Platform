@@ -24,7 +24,8 @@ from src.execution.execution_snapshot import save_snapshot
 from src.execution.execution_validator import validate_execution
 from src.api.cache_manager import CacheLayer
 from prometheus_client import Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST
-from fastapi import Response, HTMLResponse
+from fastapi import Response
+from fastapi.responses import HTMLResponse
 
 app = FastAPI(title="AMIE-APO Inference API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
