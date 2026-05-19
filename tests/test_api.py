@@ -52,13 +52,21 @@ def test_optimize_endpoint(client, tmp_path):
     with patch("src.api.server.DATA_DIR", str(data_dir)), \
          patch("src.api.server.solver.mean_variance", return_value=np.array([0.6, 0.4])), \
          patch("src.api.server.risk_guard.validate_order", return_value={"status": "APPROVED"}):
-        
         response = client.get("/optimize?symbols=SPY,VIX")
         assert response.status_code == 200
         data = response.json()
+        # Verify full response contract
+        assert "snapshot_id" in data
         assert "portfolio" in data
-        assert "weights" in data["portfolio"]
-        assert data["portfolio"]["weights"] == {"SPY": 0.6, "VIX": 0.4}
+        assert "execution" in data
+        assert "validation" in data
+        # Verify portfolio.weights structure and values
+        portfolio = data["portfolio"]
+        assert "weights" in portfolio
+        assert set(portfolio["weights"].keys()) == {"SPY", "VIX"}
+        assert portfolio["weights"]["SPY"] == pytest.approx(0.6, abs=1e-6)
+        assert portfolio["weights"]["VIX"] == pytest.approx(0.4, abs=1e-6)
+        # Verify execution orders
         assert len(data["execution"]["orders"]) == 2
 
 @pytest.mark.performance
